@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Eyes</title>
+    <style>
+      #text {
+        border: solid 1px red;
+        margin: 0;
+        position: absolute;
+        font-weight: bold;
+        text-align: center;
+        font-family: 'Courier New', monospace;
+        cursor: default;
+        user-select: none;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        pointer-events: none;
+      }
+      #modal {
+        display: block;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0, 0, 0);
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+      #modalContent {
+        position: relative;
+        font-family: Helvetica, sans-serif;
+        background-color: #fefefe;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+        max-width: 500px;
+        width: 80%;
+        border-radius: 6px;
+        padding: 20px;
+        border: 2px solid red;
+        user-select: none;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        cursor: default;
+      }
+      #continueButton {
+        border-radius: 4px;
+        font-weight: bold;
+        border: 2px solid #c90000;
+        background: #c90000;
+        color: #fff;
+      }
+      #continueButton:hover {
+        background: red;
+        border-color: red;
+      }
+      #continueButton:active {
+        color: red;
+        background: #fff;
+      }
+      @media (min-width: 320px) {
+        #text {
+          font-size: 36px;
+        }
+        #modalContent p {
+          font-size: 28px;
+        }
+        #modalContent {
+          top: 20%;
+          font-size: 18px;
+        }
+        #continueButton {
+          height: 40px;
+          width: 120px;
+          font-size: 20px;
+        }
+      }
+      @media (min-width: 801px) {
+        #text {
+          font-size: 40px;
+        }
+        #modalContent p {
+          font-size: 24px;
+        }
+        #modalContent {
+          top: 40%;
+          font-size: 16px;
+        }
+        #continueButton {
+          height: 30px;
+          width: 90px;
+          font-size: 16px;
+        }
+      }
+    </style>
+</head>
+<body id="body">
+    <div id="text"></div>
+</body>
+<script>
+"use strict"
+
+if (window.sessionStorage.length === 0) {
+    const modal = document.createElement('modal');
+    modal.id = "modal";
+
+    const modalContent = document.createElement('div');
+    modalContent.innerHTML = `<strong><p style="color: red; margin: 0; padding: 0;">WARNING<br> Flashing Content Ahead</p></strong><br><br>
+    This website contains rapid flashing images or effects that may <br>
+    potentially trigger seizures for people with photosensitive epilepsy.
+    <br><br>Viewer discretion is advised.<br><br><br>`;
+    modalContent.id = "modalContent";
+    modalContent.style = `
+
+`;
+
+    const continueButton = document.createElement('button');
+    continueButton.innerHTML = "Proceed";
+    continueButton.id = "continueButton";
+
+    modal.appendChild(modalContent);
+    modalContent.appendChild(continueButton);
+    document.body.appendChild(modal);
+
+    continueButton.addEventListener("click", function() {
+        window.sessionStorage.setItem("proceed", "true");
+        modal.style.display = "none";
+        setTimeout(run, 200);
+    });
+}
+else {
+    run();
+}
+
+function run() {
+    window.addEventListener("click", reset);
+    window.addEventListener("touchstart", reset);
+
+    const bg = document.getElementById("body");
+    const text = document.getElementById("text");
+
+    const dfText = "Welcome!!!";
+    const dfTextRed = 0;
+    const dfTextGreen = 0;
+    const dfTextBlue = 0;
+    const dfBgRed = 255;
+    const dfBgGreen = 255;
+    const dfBgBlue = 255;
+
+    let textVal = dfText;
+    text.innerHTML = textVal;
+
+    let textRedVal = dfTextRed;
+    let textGreenVal = dfTextGreen;
+    let textBlueVal = dfTextBlue;
+
+    let bgRedVal = dfBgRed;
+    let bgGreenVal = dfBgGreen;
+    let bgBlueVal = dfBgBlue;
+
+    let bgRedReverse = false;
+    let bgGreenReverse = false;
+    let bgBlueReverse = false;
+    let textRedReverse = true;
+    let textGreenReverse = true;
+    let textBlueReverse = true;
+
+    const fps = [1, 15, 15, 15, 15, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 50, 50, 50, 50];
+    let rng = randomInt(0, 19);
+
+    let moveTextInterval = setInterval(moveText, (1000 / 30));
+    let textColorInterval = setInterval(changeTextColor, randomInt(1, 100));
+    let bgColorInterval = setInterval(changeBgColor, fps[rng]);
+    let textLetterInterval = setInterval(changeTextLetters, randomInt(1, 500));
+
+    let rgbTextMinChange = 0;
+    let rgbTextMaxChange = randomInt(rgbTextMinChange, 25);
+
+    let rgbBgMinChange = 0;
+    let rgbBgMaxChange = randomInt(rgbBgMinChange, 25);
+
+    let textMoveMin = randomInt(-15, 0);
+    let textMoveMax = Math.abs(textMoveMin);
+
+    function changeTextColor() {
+        const oldTextRedVal = textRedVal;
+        const oldTextGreenVal = textGreenVal;
+        const oldTextBlueVal = textBlueVal;
+
+        textRedVal = newRGBVal(textRedReverse, textRedVal, randomInt(rgbTextMinChange, rgbTextMaxChange));
+        textRedReverse = (oldTextRedVal >= textRedVal);
+
+        textGreenVal = newRGBVal(textGreenReverse, textGreenVal, randomInt(rgbTextMinChange, rgbTextMaxChange));
+        textGreenReverse = (oldTextGreenVal >= textGreenVal);
+
+        textBlueVal = newRGBVal(textBlueReverse, textBlueVal, randomInt(rgbTextMinChange, rgbTextMaxChange));
+        textBlueReverse = (oldTextBlueVal >= textBlueVal);
+
+        text.style.color = `rgb(${textRedVal},${textGreenVal},${textBlueVal})`;
+    }
+
+    function changeBgColor() {
+        const oldBgRedVal = bgRedVal;
+        const oldBgGreenVal = bgGreenVal;
+        const oldBgBlueVal = bgBlueVal;
+        let redVariance = 0;
+        let greenVariance = 0;
+        let blueVariance = 0;
+
+        if (randomInt(0, randomInt(1, 6)) === 1) {
+            const redVariance = randomInt(0, rgbBgMaxChange / 2);
+        }
+        if (randomInt(0, randomInt(1, 6)) === 1) {
+            greenVariance = randomInt(0, rgbBgMaxChange / 2);
+        }
+        if (randomInt(0, randomInt(1, 6)) === 1) {
+            blueVariance = randomInt(0, rgbBgMaxChange / 2);
+        }
+
+        bgRedVal = newRGBVal(bgRedReverse, bgRedVal, randomInt(rgbBgMinChange, rgbBgMaxChange) + redVariance);
+        bgRedReverse = (oldBgRedVal > bgRedVal);
+
+        bgGreenVal = newRGBVal(bgGreenReverse, bgGreenVal, randomInt(rgbBgMinChange, rgbBgMaxChange) + blueVariance);
+        bgGreenReverse = (oldBgGreenVal > bgGreenVal);
+
+        bgBlueVal = newRGBVal(bgBlueReverse, bgBlueVal, randomInt(rgbBgMinChange, rgbBgMaxChange) + greenVariance);
+        bgBlueReverse = (oldBgBlueVal > bgBlueVal);
+
+        body.style.background = `rgb(${bgRedVal},${bgGreenVal},${bgBlueVal})`;
+    }
+
+    function newRGBVal(reverse, value, step) {
+        if (reverse) {
+            if (value - step < 0) {
+                return Math.abs(value - step) + 0;
+            } else {
+                return value - step;
+            }
+        } else {
+            if (value + step > 255) {
+                return 255 - ((value + step) % 255);
+            } else {
+                return value + step;
+            }
+        }
+    }
+
+    function randomRGB() {
+        let r = randomInt(0, 255);
+        let b = randomInt(0, 255);
+        let g = randomInt(0, 255);
+        return `rgb(${r},${g},${b}`;
+    }
+
+    function randomInt(min, max) {
+        const minCeiled = Math.ceil(min);
+        const maxFloored = Math.floor(max + 1);
+        return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
+    }
+
+    let textLeft = (window.innerWidth / 2) - 100;
+    let textTop = (window.innerHeight / 2) - 14;
+    text.style.left = `${textLeft}px`;
+    text.style.top = `${textTop}px`;
+
+    function moveText() {
+        textTop += randomInt(textMoveMin, textMoveMax);
+        textLeft += randomInt(textMoveMin, textMoveMax);
+        text.style.left = `${textLeft}px`;
+        text.style.top = `${textTop}px`;
+    }
+
+    function changeTextLetters() {
+        const pos = randomInt(0, 9);
+        textVal = textVal.replaceAt(pos, String.fromCharCode(textVal.charCodeAt(pos) + randomInt(-1, 4)));
+        text.innerHTML = textVal;
+    }
+
+    String.prototype.replaceAt = function (index, replacement) {
+        return this.substring(0, index) + replacement + this.substring(index + replacement.length);
+    }
+
+    function reset() {
+        textVal = dfText;
+        text.innerHTML = dfText;
+        rng = randomInt(0, 19);
+
+        clearInterval(moveTextInterval);
+        clearInterval(textColorInterval);
+        clearInterval(bgColorInterval);
+        clearInterval(textLetterInterval);
+
+        textLeft = (window.innerWidth / 2) - 100;
+        textTop = (window.innerHeight / 2) - 14;
+
+
+        textRedVal = dfTextRed;
+        textGreenVal = dfTextGreen;
+        textBlueVal = dfTextBlue;
+        bgRedVal = dfBgRed;
+        bgGreenVal = dfBgGreen;
+        bgBlueVal = dfBgBlue;
+
+        bgRedReverse = false;
+        bgGreenReverse = false;
+        bgBlueReverse = false;
+        textRedReverse = true;
+        textGreenReverse = true;
+        textBlueReverse = true;
+
+        rgbTextMinChange = 0;
+        rgbTextMaxChange = randomInt(rgbTextMinChange, 25);
+
+        rgbBgMinChange = 0;
+        rgbBgMaxChange = randomInt(rgbBgMinChange, 25);
+
+        textMoveMin = randomInt(-15, 0);
+        textMoveMax = Math.abs(textMoveMin);
+
+        moveTextInterval = setInterval(moveText, (1000 / 30));
+        textColorInterval = setInterval(changeTextColor, randomInt(1, 100));
+        bgColorInterval = setInterval(changeBgColor, fps[rng]);
+        textLetterInterval = setInterval(changeTextLetters, randomInt(1, 500));
+    }
+}
+</script>
+</html>
